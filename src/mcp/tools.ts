@@ -63,6 +63,18 @@ export const TOOLS = [
     },
   },
   {
+    name: "import_apkg",
+    description: "Import cards from an Anki .apkg export file. Returns count of upserted items, skipped notes, and deck names found.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        path:        { type: "string", description: "Absolute path to the .apkg file" },
+        deck_filter: { type: "string", description: "Only import cards from decks whose name contains this string (case-insensitive)" },
+      },
+      required: ["path"],
+    },
+  },
+  {
     name: "get_due_counts",
     description: "Get the count of new and due items for a learner.",
     inputSchema: {

@@ -11,6 +11,7 @@ import { nextDue, getDueCounts } from "../core/queue.js";
 import { recordReview } from "../core/review.js";
 import { upsertItems, listItems } from "../core/items.js";
 import { upsertLearner } from "../core/learners.js";
+import { parseApkg } from "../importers/apkg.js";
 import { TOOLS } from "./tools.js";
 import type { Rating } from "../core/types.js";
 
@@ -63,6 +64,14 @@ export async function runMcp(): Promise<void> {
             limit: args.limit != null ? Number(args.limit) : undefined,
           });
           return { content: [{ type: "text", text: JSON.stringify(result) }] };
+        }
+
+        case "import_apkg": {
+          const path = String(args.path);
+          const deckFilter = args.deck_filter != null ? String(args.deck_filter) : undefined;
+          const result = parseApkg(path, deckFilter);
+          const n = upsertItems(result.items);
+          return { content: [{ type: "text", text: JSON.stringify({ upserted: n, skipped: result.skipped, decks: result.decks }) }] };
         }
 
         case "get_due_counts": {

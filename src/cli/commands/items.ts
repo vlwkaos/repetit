@@ -1,6 +1,7 @@
 import { upsertItems, getItem, listItems } from "../../core/items.js";
 import { parseArgs, out, die } from "../args.js";
 import { readFileSync } from "fs";
+import { parseApkg } from "../../importers/apkg.js";
 
 export async function runItems(argv: string[]): Promise<void> {
   const [sub, ...rest] = argv;
@@ -40,7 +41,20 @@ export async function runItems(argv: string[]): Promise<void> {
       out(item, pretty);
       break;
     }
+    case "import-apkg": {
+      const file = pos[0];
+      if (!file) die("items import-apkg requires a .apkg file path");
+      const deck = flags["deck"] ? String(flags["deck"]) : undefined;
+      try {
+        const result = parseApkg(file, deck);
+        const n = upsertItems(result.items);
+        out({ upserted: n, skipped: result.skipped, decks: result.decks }, pretty);
+      } catch (e: any) {
+        die(e.message ?? String(e));
+      }
+      break;
+    }
     default:
-      die("items subcommand: import <file|-> | list [--tag <tag>] | get <uid>");
+      die("items subcommand: import <file|-> | import-apkg <file.apkg> [--deck <name>] | list [--tag <tag>] | get <uid>");
   }
 }

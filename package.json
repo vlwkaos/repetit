@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
+    "fflate": "0.8.2",
     "ts-fsrs": "4.7.1"
   },
   "devDependencies": {
