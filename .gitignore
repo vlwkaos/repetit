@@ -1,8 +1,5 @@
 node_modules/
 dist/
-data/
-client/dist/
-*.db
-*.db-wal
-*.db-shm
+data/repetit.db*
+data/_legacy/
 .DS_Store

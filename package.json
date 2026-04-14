@@ -1,26 +1,20 @@
 {
-  "name": "ankimo",
+  "name": "repetit",
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "repetit": "./src/cli/main.ts"
+  },
   "scripts": {
-    "dev": "concurrently 'bun --watch server/index.ts' 'cd client && bunx vite --port 5173'",
-    "dev:server": "bun --watch server/index.ts",
-    "dev:client": "cd client && bunx vite --port 5173",
-    "build": "cd client && bunx vite build",
-    "start": "NODE_ENV=production bun server/index.ts",
-    "seed": "bun scripts/seed.ts"
+    "dev": "bun --watch src/http/server.ts",
+    "test": "bun test"
   },
   "dependencies": {
-    "ts-fsrs": "^4.6.0",
-    "js-yaml": "^4.1.0",
-    "marked": "^15.0.0",
-    "fflate": "^0.8.2"
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "ts-fsrs": "4.7.1"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
-    "concurrently": "^9.1.0",
-    "typescript": "^5.7.0",
-    "vite": "^6.0.0"
+    "bun-types": "1.2.9"
   }
 }
