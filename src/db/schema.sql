@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS learner_states (
   fsrs_state       TEXT,    -- JSON ts-fsrs Card; NULL = never reviewed (new card)
   due_at           TEXT,    -- ISO8601; denormalized from fsrs_state for indexed queries
   last_reviewed_at TEXT,
+  agent_notes      TEXT,    -- mutable running summary written by agent on each rate call
   PRIMARY KEY (learner_id, item_uid)
 );
 CREATE INDEX IF NOT EXISTS idx_ls_due ON learner_states(learner_id, due_at);
@@ -33,7 +34,8 @@ CREATE TABLE IF NOT EXISTS reviews (
   stability   REAL,
   difficulty  REAL,
   state       INTEGER,
-  reviewed_at TEXT NOT NULL DEFAULT (datetime('now'))
+  reviewed_at TEXT NOT NULL DEFAULT (datetime('now')),
+  metadata    TEXT   -- opaque JSON written by agent at rate time
 );
 CREATE INDEX IF NOT EXISTS idx_reviews_learner_day ON reviews(learner_id, reviewed_at);
 
@@ -43,5 +45,6 @@ CREATE TABLE IF NOT EXISTS learner_config (
   daily_review_limit INTEGER NOT NULL DEFAULT 200,
   target_retention   REAL    NOT NULL DEFAULT 0.9,
   tz_offset_minutes  INTEGER NOT NULL DEFAULT 0,  -- learner's UTC offset in minutes
-  fsrs_weights       TEXT                         -- JSON number[]; NULL = ts-fsrs defaults
+  fsrs_weights       TEXT,                        -- JSON number[]; NULL = ts-fsrs defaults
+  agent_prompt       TEXT                         -- instruction for the agent; returned in every nextDue response
 );

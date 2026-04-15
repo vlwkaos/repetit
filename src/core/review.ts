@@ -10,8 +10,10 @@ export function recordReview(args: {
   rating: RatingType;
   elapsedMs?: number;
   now?: Date;
+  metadata?: unknown;
+  agentNotes?: string;
 }): ReviewResult {
-  const { learnerId, uid, rating, elapsedMs, now = new Date() } = args;
+  const { learnerId, uid, rating, elapsedMs, now = new Date(), metadata, agentNotes } = args;
 
   if (rating < 1 || rating > 4) throw new Error(`Invalid rating ${rating}: must be 1-4`);
 
@@ -44,14 +46,15 @@ export function recordReview(args: {
 
   db.prepare(`
     UPDATE learner_states
-    SET fsrs_state = ?, due_at = ?, last_reviewed_at = ?
+    SET fsrs_state = ?, due_at = ?, last_reviewed_at = ?,
+        agent_notes = CASE WHEN ? IS NOT NULL THEN ? ELSE agent_notes END
     WHERE learner_id = ? AND item_uid = ?
-  `).run(JSON.stringify(next), nextDueAt, now.toISOString(), learnerId, uid);
+  `).run(JSON.stringify(next), nextDueAt, now.toISOString(), agentNotes ?? null, agentNotes ?? null, learnerId, uid);
 
   db.prepare(`
-    INSERT INTO reviews (learner_id, item_uid, rating, elapsed_ms, stability, difficulty, state, reviewed_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(learnerId, uid, rating, elapsedMs ?? null, next.stability, next.difficulty, Number(next.state), now.toISOString());
+    INSERT INTO reviews (learner_id, item_uid, rating, elapsed_ms, stability, difficulty, state, reviewed_at, metadata)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(learnerId, uid, rating, elapsedMs ?? null, next.stability, next.difficulty, Number(next.state), now.toISOString(), metadata !== undefined ? JSON.stringify(metadata) : null);
 
   return {
     nextDueAt,

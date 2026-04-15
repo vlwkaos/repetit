@@ -19,5 +19,14 @@ db.exec("PRAGMA foreign_keys = ON");
 const schema = readFileSync(SCHEMA_PATH, "utf-8");
 db.exec(schema);
 
+// Idempotent column migrations for existing DBs (schema.sql handles fresh DBs)
+function addColumnIfMissing(table: string, column: string, definition: string) {
+  const cols = (db.prepare(`PRAGMA table_info(${table})`).all() as any[]).map((r) => r.name);
+  if (!cols.includes(column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+}
+addColumnIfMissing("learner_states", "agent_notes", "TEXT");
+addColumnIfMissing("reviews",        "metadata",    "TEXT");
+addColumnIfMissing("learner_config", "agent_prompt","TEXT");
+
 export default db;
 export { DATA_DIR };

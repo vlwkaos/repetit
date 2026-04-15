@@ -25,6 +25,23 @@ export interface LearnerConfig {
   targetRetention: number;
   tzOffsetMinutes: number;
   fsrsWeights: number[] | null;
+  agentPrompt: string | null;
+}
+
+export interface LastReview {
+  rating: Rating;
+  ratedAt: string;
+  metadata: unknown;
+}
+
+export interface ItemWithContext extends Item {
+  agentNotes: string | null;
+  lastReview: LastReview | null;
+}
+
+export interface SessionResult {
+  agentPrompt: string | null;
+  items: ItemWithContext[];
 }
 
 export interface ReviewResult {

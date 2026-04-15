@@ -2,7 +2,7 @@
 import db from "../db/connection.js";
 import { getConfig } from "./learners.js";
 import { getItem } from "./items.js";
-import type { Item, LearnerId, DueCounts } from "./types.js";
+import type { LearnerId, DueCounts, SessionResult, ItemWithContext } from "./types.js";
 
 /** Returns the learner's local date string (YYYY-MM-DD) accounting for tz_offset_minutes. */
 function localDateStr(now: Date, tzOffsetMinutes: number): string {
@@ -15,7 +15,7 @@ export function nextDue(args: {
   limit?: number;
   tag?: string;
   now?: Date;
-}): Item[] {
+}): SessionResult {
   const { learnerId, limit = 1, tag, now = new Date() } = args;
   const config = getConfig(learnerId);
   const today = localDateStr(now, config.tzOffsetMinutes);
@@ -70,7 +70,33 @@ export function nextDue(args: {
     ...newRows.map((r) => r.uid),
   ].slice(0, limit);
 
-  return uids.map((uid) => getItem(uid)!).filter(Boolean);
+  const items: ItemWithContext[] = uids.map((uid) => {
+    const item = getItem(uid)!;
+    const stateRow = db.prepare(
+      "SELECT agent_notes FROM learner_states WHERE learner_id = ? AND item_uid = ?"
+    ).get(learnerId, uid) as any;
+
+    const lastReviewRow = db.prepare(`
+      SELECT rating, reviewed_at, metadata
+      FROM reviews
+      WHERE learner_id = ? AND item_uid = ?
+      ORDER BY reviewed_at DESC LIMIT 1
+    `).get(learnerId, uid) as any;
+
+    return {
+      ...item,
+      agentNotes: stateRow?.agent_notes ?? null,
+      lastReview: lastReviewRow
+        ? {
+            rating: lastReviewRow.rating,
+            ratedAt: lastReviewRow.reviewed_at,
+            metadata: lastReviewRow.metadata ? JSON.parse(lastReviewRow.metadata) : null,
+          }
+        : null,
+    };
+  }).filter(Boolean);
+
+  return { agentPrompt: config.agentPrompt, items };
 }
 
 export function getDueCounts(args: { learnerId: LearnerId; tag?: string; now?: Date }): DueCounts {

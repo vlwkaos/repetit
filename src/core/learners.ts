@@ -45,6 +45,7 @@ export function getConfig(learnerId: LearnerId): LearnerConfig {
     targetRetention: row.target_retention,
     tzOffsetMinutes: row.tz_offset_minutes,
     fsrsWeights: row.fsrs_weights ? JSON.parse(row.fsrs_weights) : null,
+    agentPrompt: row.agent_prompt ?? null,
   };
 }
 
@@ -62,6 +63,10 @@ export function updateConfig(
   if (patch.fsrsWeights !== undefined) {
     fields.push("fsrs_weights = ?");
     values.push(patch.fsrsWeights !== null ? JSON.stringify(patch.fsrsWeights) : null);
+  }
+  if (patch.agentPrompt !== undefined) {
+    fields.push("agent_prompt = ?");
+    values.push(patch.agentPrompt ?? null);
   }
 
   if (fields.length > 0) {
