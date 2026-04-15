@@ -65,11 +65,11 @@ export async function handleRequest(req: Request): Promise<Response> {
     upsertLearner({ id: lid });
     let body: any;
     try { body = await req.json(); } catch { return errorResponse("Invalid JSON", 400); }
-    const { uid, rating, elapsedMs } = body;
+    const { uid, rating, elapsedMs, metadata, agentNotes } = body;
     if (typeof uid !== "string") return errorResponse("uid required", 400);
     if (![1, 2, 3, 4].includes(rating)) return errorResponse("rating must be 1-4", 400);
     try {
-      const result = recordReview({ learnerId: lid, uid, rating: rating as Rating, elapsedMs });
+      const result = recordReview({ learnerId: lid, uid, rating: rating as Rating, elapsedMs, metadata, agentNotes });
       return jsonResponse(result);
     } catch (e: any) {
       if (e.message?.includes("not found")) return errorResponse(e.message, 404);
@@ -103,6 +103,7 @@ export async function handleRequest(req: Request): Promise<Response> {
       targetRetention: body.targetRetention,
       tzOffsetMinutes: body.tzOffsetMinutes,
       fsrsWeights: body.fsrsWeights,
+      agentPrompt: body.agentPrompt,
     });
     return jsonResponse(config);
   }

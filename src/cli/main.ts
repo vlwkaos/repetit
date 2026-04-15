@@ -4,6 +4,7 @@ import { runRate } from "./commands/rate.js";
 import { runItems } from "./commands/items.js";
 import { runLearners } from "./commands/learners.js";
 import { runQueue } from "./commands/queue.js";
+import { runStudy } from "./commands/study.js";
 import { runMcp } from "../mcp/server.js";
 import { runServe } from "./commands/serve.js";
 
@@ -14,7 +15,8 @@ function usage(): never {
     "Usage: repetit <command> [options]",
     "",
     "Commands:",
-    "  next       [--learner <id>] [--tag <tag>] [--limit <n>]",
+    "  study      [--learner <id>] [--tag <tag>] [--limit <n>]",
+  "  next       [--learner <id>] [--tag <tag>] [--limit <n>]",
     "  rate       <uid> <again|hard|good|easy> [--learner <id>] [--ms <n>]",
     "  queue      [--learner <id>] [--tag <tag>]",
     "  items      import <file|-> | list [--tag <tag>] | get <uid>",
@@ -35,6 +37,7 @@ switch (cmd) {
   case "queue":    await runQueue(rest); break;
   case "items":    await runItems(rest); break;
   case "learners": await runLearners(rest); break;
+  case "study":    await runStudy(rest); break;
   case "mcp":      await runMcp(); break;
   case "serve":    await runServe(rest); break;
   default:         usage();

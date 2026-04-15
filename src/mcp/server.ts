@@ -31,12 +31,12 @@ export async function runMcp(): Promise<void> {
         case "get_next": {
           const learnerId = String(args.learner_id);
           upsertLearner({ id: learnerId });
-          const items = nextDue({
+          const session = nextDue({
             learnerId,
             limit: args.limit != null ? Number(args.limit) : 1,
             tag: args.tag != null ? String(args.tag) : undefined,
           });
-          return { content: [{ type: "text", text: JSON.stringify(items) }] };
+          return { content: [{ type: "text", text: JSON.stringify(session) }] };
         }
 
         case "submit_review": {
@@ -47,6 +47,8 @@ export async function runMcp(): Promise<void> {
             uid: String(args.uid),
             rating: Number(args.rating) as Rating,
             elapsedMs: args.elapsed_ms != null ? Number(args.elapsed_ms) : undefined,
+            metadata: args.metadata != null ? args.metadata : undefined,
+            agentNotes: args.agent_notes != null ? String(args.agent_notes) : undefined,
           });
           return { content: [{ type: "text", text: JSON.stringify(result) }] };
         }

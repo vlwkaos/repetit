@@ -4,7 +4,7 @@
 export const TOOLS = [
   {
     name: "get_next",
-    description: "Get the next due item(s) for a learner. Returns an array of items with their payloads.",
+    description: "Get the next due item(s) for a learner. Returns { agentPrompt, items } — agentPrompt carries the learner's configured agent instructions; each item includes agentNotes (running summary) and lastReview (rating, ratedAt, metadata from previous session).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -17,14 +17,16 @@ export const TOOLS = [
   },
   {
     name: "submit_review",
-    description: "Record a rating for a reviewed item. Channel decides the rating based on user's answer.",
+    description: "Record a rating for a reviewed item. Channel decides the rating based on user's answer. Include metadata with your assessment and agent_notes for a running summary — both are returned in future get_next calls so context survives session loss.",
     inputSchema: {
       type: "object" as const,
       properties: {
-        learner_id: { type: "string" },
-        uid:        { type: "string", description: "Item uid from get_next" },
-        rating:     { type: "number", enum: [1, 2, 3, 4], description: "1=Again 2=Hard 3=Good 4=Easy" },
-        elapsed_ms: { type: "number", description: "Time the learner spent on this item (optional)" },
+        learner_id:  { type: "string" },
+        uid:         { type: "string", description: "Item uid from get_next" },
+        rating:      { type: "number", enum: [1, 2, 3, 4], description: "1=Again 2=Hard 3=Good 4=Easy" },
+        elapsed_ms:  { type: "number", description: "Time the learner spent on this item (optional)" },
+        metadata:    { description: "Opaque JSON — agent's per-review assessment (e.g. { note, misconceptions, confidence })" },
+        agent_notes: { type: "string", description: "Mutable running summary for this item; overwrites previous value; returned in next get_next call" },
       },
       required: ["learner_id", "uid", "rating"],
     },

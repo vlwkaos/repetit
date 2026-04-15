@@ -13,6 +13,12 @@ export async function runRate(argv: string[]): Promise<void> {
   const learnerId = String(flags["learner"] ?? "default");
   const elapsedMs = flags["ms"] ? Number(flags["ms"]) : undefined;
   const pretty = flags["pretty"] === true;
+  const agentNotes = flags["agent-notes"] ? String(flags["agent-notes"]) : undefined;
+  let metadata: unknown;
+  if (flags["meta"]) {
+    try { metadata = JSON.parse(String(flags["meta"])); }
+    catch { die("--meta must be valid JSON"); }
+  }
 
   if (!uid) die("uid required");
   if (!ratingLabel) die("rating required: again | hard | good | easy");
@@ -22,7 +28,7 @@ export async function runRate(argv: string[]): Promise<void> {
 
   upsertLearner({ id: learnerId });
   try {
-    const result = recordReview({ learnerId, uid, rating, elapsedMs });
+    const result = recordReview({ learnerId, uid, rating, elapsedMs, metadata, agentNotes });
     out(result, pretty);
   } catch (e: any) {
     die(e.message ?? String(e));

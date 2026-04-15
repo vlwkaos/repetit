@@ -1,4 +1,4 @@
-import { upsertLearner, getLearner, listLearners, getConfig, updateConfig } from "../../core/learners.js";
+import { upsertLearner, listLearners, getConfig, updateConfig } from "../../core/learners.js";
 import { parseArgs, out, die } from "../args.js";
 
 export async function runLearners(argv: string[]): Promise<void> {
@@ -24,12 +24,13 @@ export async function runLearners(argv: string[]): Promise<void> {
     case "config": {
       const id = pos[0];
       if (!id) die("learners config requires an id");
-      if (!getLearner(id)) die(`Learner not found: ${id}`);
+      upsertLearner({ id });
       const patch: Record<string, unknown> = {};
       if (flags["new-limit"]) patch.dailyNewLimit = Number(flags["new-limit"]);
       if (flags["review-limit"]) patch.dailyReviewLimit = Number(flags["review-limit"]);
       if (flags["retention"]) patch.targetRetention = Number(flags["retention"]);
       if (flags["tz"]) patch.tzOffsetMinutes = Number(flags["tz"]);
+      if (flags["agent-prompt"] !== undefined) patch.agentPrompt = flags["agent-prompt"] === true ? "" : String(flags["agent-prompt"]);
       const config = Object.keys(patch).length
         ? updateConfig(id, patch)
         : getConfig(id);
