@@ -66,4 +66,47 @@ describe("recordReview", () => {
     expect(row.rating).toBe(2);
     expect(row.elapsed_ms).toBe(5000);
   });
+
+  it("persists metadata on the review row", () => {
+    const meta = { note: "Missed edge case", confidence: "low" };
+    recordReview({ learnerId: "alice", uid: "q:1", rating: 2, metadata: meta, now: NOW });
+    const row = db.prepare(
+      "SELECT metadata FROM reviews WHERE learner_id = 'alice' AND item_uid = 'q:1'"
+    ).get() as any;
+    expect(JSON.parse(row.metadata)).toEqual(meta);
+  });
+
+  it("metadata defaults to null when not provided", () => {
+    recordReview({ learnerId: "alice", uid: "q:1", rating: 3, now: NOW });
+    const row = db.prepare(
+      "SELECT metadata FROM reviews WHERE learner_id = 'alice' AND item_uid = 'q:1'"
+    ).get() as any;
+    expect(row.metadata).toBeNull();
+  });
+
+  it("stores agentNotes on learner_states", () => {
+    recordReview({ learnerId: "alice", uid: "q:1", rating: 3, agentNotes: "Understands concept, weak on edge cases.", now: NOW });
+    const row = db.prepare(
+      "SELECT agent_notes FROM learner_states WHERE learner_id = 'alice' AND item_uid = 'q:1'"
+    ).get() as any;
+    expect(row.agent_notes).toBe("Understands concept, weak on edge cases.");
+  });
+
+  it("agentNotes overwrites previous value", () => {
+    recordReview({ learnerId: "alice", uid: "q:1", rating: 3, agentNotes: "first note", now: NOW });
+    recordReview({ learnerId: "alice", uid: "q:1", rating: 3, agentNotes: "updated note", now: NOW });
+    const row = db.prepare(
+      "SELECT agent_notes FROM learner_states WHERE learner_id = 'alice' AND item_uid = 'q:1'"
+    ).get() as any;
+    expect(row.agent_notes).toBe("updated note");
+  });
+
+  it("agentNotes omitted leaves existing value unchanged", () => {
+    recordReview({ learnerId: "alice", uid: "q:1", rating: 3, agentNotes: "keep me", now: NOW });
+    recordReview({ learnerId: "alice", uid: "q:1", rating: 4, now: NOW }); // no agentNotes
+    const row = db.prepare(
+      "SELECT agent_notes FROM learner_states WHERE learner_id = 'alice' AND item_uid = 'q:1'"
+    ).get() as any;
+    expect(row.agent_notes).toBe("keep me");
+  });
 });
