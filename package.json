@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "bun --watch src/http/server.ts",
-    "test": "bun test"
+    "test": "bun test",
+    "mcp": "bun src/cli/main.ts mcp"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",

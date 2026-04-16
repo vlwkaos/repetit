@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "repetit": {
+      "command": "bun",
+      "args": ["run", "mcp"],
+      "cwd": "/Users/eliot/ws-ps/ankimo"
+    }
+  }
+}
