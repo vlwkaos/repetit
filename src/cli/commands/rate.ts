@@ -1,11 +1,7 @@
 import { recordReview } from "../../core/review.js";
 import { upsertLearner } from "../../core/learners.js";
-import { parseArgs, out, die } from "../args.js";
+import { parseArgs, out, die, RATING_MAP } from "../args.js";
 import type { Rating } from "../../core/types.js";
-
-const RATING_MAP: Record<string, Rating> = {
-  again: 1, hard: 2, good: 3, easy: 4,
-};
 
 export async function runRate(argv: string[]): Promise<void> {
   const { flags, pos } = parseArgs(argv);

@@ -1,3 +1,16 @@
+import type { Rating } from "../core/types.js";
+
+/** Maps rating words (and single-letter shortcuts) to FSRS rating numbers. */
+export const RATING_MAP: Record<string, Rating> = {
+  again: 1, a: 1,
+  hard:  2, h: 2,
+  good:  3, g: 3,
+  easy:  4, e: 4,
+};
+
+/** Human label for each rating number. */
+export const RATING_LABELS: Record<number, string> = { 1: "Again", 2: "Hard", 3: "Good", 4: "Easy" };
+
 /** Minimal flag parser — no deps. Returns named flags and positional args. */
 export function parseArgs(argv: string[]): { flags: Record<string, string | true>; pos: string[] } {
   const flags: Record<string, string | true> = {};

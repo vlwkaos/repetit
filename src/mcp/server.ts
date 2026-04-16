@@ -47,7 +47,7 @@ export async function runMcp(): Promise<void> {
             uid: String(args.uid),
             rating: Number(args.rating) as Rating,
             elapsedMs: args.elapsed_ms != null ? Number(args.elapsed_ms) : undefined,
-            metadata: args.metadata != null ? args.metadata : undefined,
+            metadata: args.metadata ?? undefined,
             agentNotes: args.agent_notes != null ? String(args.agent_notes) : undefined,
           });
           return { content: [{ type: "text", text: JSON.stringify(result) }] };

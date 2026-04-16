@@ -2,15 +2,8 @@ import { createInterface } from "readline";
 import { nextDue } from "../../core/queue.js";
 import { recordReview } from "../../core/review.js";
 import { upsertLearner } from "../../core/learners.js";
-import { parseArgs } from "../args.js";
+import { parseArgs, RATING_MAP, RATING_LABELS } from "../args.js";
 import type { Rating } from "../../core/types.js";
-
-const RATING_MAP: Record<string, Rating> = {
-  again: 1, a: 1,
-  hard:  2, h: 2,
-  good:  3, g: 3,
-  easy:  4, e: 4,
-};
 
 function println(s = "") { process.stdout.write(s + "\n"); }
 function stripHtml(s: string) { return s.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">"); }
@@ -71,19 +64,20 @@ export async function runStudy(argv: string[]): Promise<void> {
     println();
 
     let rating: Rating | undefined;
+    let quit = false;
     while (!rating) {
       const input = await ask("  Rating (a/h/g/e): ");
-      if (input.trim().toLowerCase() === "q") { println("Quit."); rl.close(); process.exit(0); }
+      if (input.trim().toLowerCase() === "q") { quit = true; break; }
       rating = RATING_MAP[input.trim().toLowerCase()];
       if (!rating) println("  → again, hard, good, easy  (or a/h/g/e)");
     }
+    if (quit) break;
 
     const result = recordReview({ learnerId, uid: item.uid, rating });
-    const labels: Record<number, string> = { 1: "Again", 2: "Hard", 3: "Good", 4: "Easy" };
     const diffMin = Math.round((new Date(result.nextDueAt).getTime() - Date.now()) / 60000);
     const when = diffMin < 60 ? `${diffMin}m` : diffMin < 1440 ? `${Math.round(diffMin / 60)}h` : `${Math.round(diffMin / 1440)}d`;
 
-    println(`  ${labels[rating]} → next in ${when}  (stability: ${result.stability.toFixed(2)})`);
+    println(`  ${RATING_LABELS[rating]} → next in ${when}  (stability: ${result.stability.toFixed(2)})`);
     reviewed++;
     println();
   }
