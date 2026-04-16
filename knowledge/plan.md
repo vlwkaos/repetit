@@ -3,7 +3,7 @@
 ## Active
 
 - [ ] Commit v1 and push to vlwkaos/repetit
-- [ ] Wire `repetit mcp` into Claude Code settings
+- [x] Wire `repetit mcp` into Claude Code settings (project `.claude/settings.json`, `bun run mcp` + cwd)
 - [ ] Telegram adapter (channel → core lib calls)
 - [ ] Ankimo-markdown importer (reuse server/importers/markdown.ts logic, emit JSON for `repetit items import`)
 
