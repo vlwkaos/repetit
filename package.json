@@ -1,7 +1,6 @@
 {
   "name": "repetit",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "bin": {
     "repetit": "./src/cli/main.ts"
@@ -9,7 +8,8 @@
   "scripts": {
     "dev": "bun --watch src/http/server.ts",
     "test": "bun test",
-    "mcp": "bun src/cli/main.ts mcp"
+    "mcp": "bun src/cli/main.ts mcp",
+    "build": "bun build --compile --target=bun src/cli/main.ts --outfile=repetit"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
