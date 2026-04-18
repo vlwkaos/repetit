@@ -1,23 +1,21 @@
 import { Database } from "bun:sqlite";
-import { readFileSync } from "fs";
 import { mkdirSync } from "fs";
-import { join } from "path";
+import { join, dirname } from "path";
+import { SCHEMA } from "./schema.js";
 
-const DATA_DIR = join(import.meta.dir, "../../data");
-// ^ REPETIT_DB overrides path; use ":memory:" in tests
-const DB_PATH = process.env.REPETIT_DB ?? join(DATA_DIR, "repetit.db");
-const SCHEMA_PATH = join(import.meta.dir, "schema.sql");
+// ^ REPETIT_DB overrides; use ":memory:" in tests. Default: XDG data dir (works in compiled binary).
+const DB_PATH = process.env.REPETIT_DB
+  ?? join(process.env.HOME ?? ".", ".local", "share", "repetit", "repetit.db");
 
 if (DB_PATH !== ":memory:") {
-  mkdirSync(DATA_DIR, { recursive: true });
+  mkdirSync(dirname(DB_PATH), { recursive: true });
 }
 
 const db = new Database(DB_PATH);
 db.exec("PRAGMA journal_mode = WAL");
 db.exec("PRAGMA foreign_keys = ON");
 
-const schema = readFileSync(SCHEMA_PATH, "utf-8");
-db.exec(schema);
+db.exec(SCHEMA);
 
 // Idempotent column migrations for existing DBs (schema.sql handles fresh DBs)
 function addColumnIfMissing(table: string, column: string, definition: string) {
@@ -29,4 +27,3 @@ addColumnIfMissing("reviews",        "metadata",    "TEXT");
 addColumnIfMissing("learner_config", "agent_prompt","TEXT");
 
 export default db;
-export { DATA_DIR };
