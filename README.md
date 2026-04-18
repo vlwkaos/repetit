@@ -14,7 +14,8 @@ repetit learners list
 repetit learners config <id> [--new-limit N] [--review-limit N] [--retention 0.9] [--tz N]
                             [--agent-prompt TEXT]
 
-repetit items import <file.json|->   # [{uid, tags?, payload}, ...] JSON array
+repetit items import <file.json|->              # [{uid, tags?, payload}, ...] JSON array
+repetit items import-apkg <file.apkg> [--deck NAME]  # import from Anki export
 repetit items list [--tag TAG]
 repetit items get <uid>
 
@@ -23,6 +24,7 @@ repetit next  [--learner <id>] [--tag TAG] [--limit N]
 repetit rate  <uid> again|hard|good|easy [--learner <id>] [--ms N]
               [--meta JSON] [--agent-notes TEXT]
 repetit queue [--learner <id>] [--tag TAG]
+repetit study [--learner <id>] [--tag TAG] [--limit N]   # interactive terminal session
 
 repetit mcp          # stdio MCP server (for Claude Code / agent use)
 repetit serve        # HTTP server (default :3000, set PORT env or --port)
@@ -45,6 +47,19 @@ All commands output JSON. Use `--pretty` for human-readable output. Errors go to
 Set the prompt: `repetit learners config alice --agent-prompt "You are a C++ tutor. Fill metadata: { note, misconceptions[], confidence }"`
 
 Record notes: `repetit rate q:1 good --agent-notes "Strong on concept, weak on edge cases." --meta '{"confidence":"medium"}'`
+
+## Install
+
+**Homebrew (macOS/Linux):**
+```bash
+brew tap vlwkaos/tap
+brew install repetit
+```
+
+**Bun (from source):**
+```bash
+bun install -g github:vlwkaos/repetit
+```
 
 ## Quickstart
 
@@ -98,7 +113,7 @@ All routes require `X-Learner-Id` header. Learner is auto-created on first reque
 
 ## Data
 
-DB lives at `data/repetit.db`. Set `REPETIT_DB=:memory:` for testing or ephemeral use.
+DB lives at `~/.local/share/repetit/repetit.db`. Set `REPETIT_DB=<path>` to override, or `REPETIT_DB=:memory:` for testing or ephemeral use.
 
 Legacy data from the previous ankimo webapp is preserved at `data/_legacy/`.
 
