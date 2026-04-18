@@ -4,6 +4,7 @@
 import { unzipSync } from "fflate";
 import { Database } from "bun:sqlite";
 import { readFileSync } from "fs";
+import { htmlToText } from "./anki-utils.js";
 
 /** Anki field separator — ASCII unit separator 0x1F, not a tab */
 const ANKI_FIELD_SEP = "\x1f";
@@ -78,8 +79,8 @@ export function parseApkg(apkgPath: string, deckFilter?: string): ImportApkgResu
       }
 
       const fields = row.flds.split(ANKI_FIELD_SEP);
-      const front = fields[0] ?? "";
-      const back = fields[1] ?? "";
+      const front = htmlToText(fields[0] ?? "");
+      const back = htmlToText(fields[1] ?? "");
 
       if (!front.trim()) {
         skipped++;

@@ -3,10 +3,10 @@ import { nextDue } from "../../core/queue.js";
 import { recordReview } from "../../core/review.js";
 import { upsertLearner } from "../../core/learners.js";
 import { parseArgs, RATING_MAP, RATING_LABELS } from "../args.js";
+import { htmlToText } from "../../importers/anki-utils.js";
 import type { Rating } from "../../core/types.js";
 
 function println(s = "") { process.stdout.write(s + "\n"); }
-function stripHtml(s: string) { return s.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">"); }
 
 export async function runStudy(argv: string[]): Promise<void> {
   const { flags } = parseArgs(argv);
@@ -47,8 +47,8 @@ export async function runStudy(argv: string[]): Promise<void> {
 
   for (const item of items) {
     const payload = item.payload as any;
-    const front = stripHtml(payload?.front ?? JSON.stringify(item.payload));
-    const back  = stripHtml(payload?.back  ?? "(no back)");
+    const front = htmlToText(String(payload?.front ?? JSON.stringify(item.payload)));
+    const back  = htmlToText(String(payload?.back  ?? "(no back)"));
 
     println("─".repeat(60));
     println(`[${reviewed + 1}/${items.length}]  ${item.uid}`);

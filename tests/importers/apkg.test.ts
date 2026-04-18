@@ -1,11 +1,12 @@
 import { describe, it, expect } from "bun:test";
 import { zipSync } from "fflate";
 import { Database } from "bun:sqlite";
-import { writeFileSync, unlinkSync, mkdirSync } from "fs";
+import { writeFileSync, unlinkSync } from "fs";
 import { join } from "path";
+import { tmpdir } from "os";
 import { parseApkg } from "../../src/importers/apkg.js";
 
-const TMP = join(import.meta.dir, "../../data");
+const TMP = tmpdir();
 
 /** Build a minimal in-memory Anki SQLite and return its bytes. */
 function buildAnkiDb(notes: Array<{ guid: string; tags: string; flds: string; deckId: number }>): Uint8Array {
@@ -35,7 +36,6 @@ function buildAnkiDb(notes: Array<{ guid: string; tags: string; flds: string; de
 }
 
 function makeApkg(notes: Parameters<typeof buildAnkiDb>[0]): string {
-  mkdirSync(TMP, { recursive: true });
   const dbBytes = buildAnkiDb(notes);
   const apkgBytes = zipSync({ "collection.anki21": dbBytes });
   const path = join(TMP, `test-${Date.now()}.apkg`);
