@@ -50,15 +50,27 @@ Record notes: `repetit rate q:1 good --agent-notes "Strong on concept, weak on e
 
 ## Install
 
-**Homebrew (macOS/Linux):**
+Current status:
+
+- Available now: run from source in this repo, or install with Bun from GitHub source
+- Planned after the first tagged release: GitHub release binaries and Homebrew formula updates
+- No hosted deployment: `repetit serve` runs a local/self-hosted HTTP server
+
+**Bun (from GitHub source):**
+```bash
+bun install -g github:vlwkaos/repetit
+```
+
+**From this repo checkout:**
+```bash
+bun install
+bun run src/cli/main.ts --help
+```
+
+**Homebrew (planned after first release):**
 ```bash
 brew tap vlwkaos/tap
 brew install repetit
-```
-
-**Bun (from source):**
-```bash
-bun install -g github:vlwkaos/repetit
 ```
 
 ## Quickstart
